@@ -50,7 +50,7 @@ _forEachDo_() {
         if [[ ${_func} == *"$"* ]]; then
             eval "${_func}"
         else
-            if declare -f "${_func}" &>/dev/null; then
+            if declare -f "${_func}" &> /dev/null; then
                 eval "${_func}" "'${_it}'"
             else
                 fatal "${FUNCNAME[0]} could not find function ${_func}"

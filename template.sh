@@ -56,7 +56,7 @@ _trapCleanup_() {
     # Replace the cursor in-case 'tput civis' has been used
     tput cnorm
 
-    if declare -f "fatal" &>/dev/null && declare -f "_printFuncStack_" &>/dev/null; then
+    if declare -f "fatal" &> /dev/null && declare -f "_printFuncStack_" &> /dev/null; then
 
         _funcstack="'$(printf "%s" "${_funcstack}" | sed -E 's/ / < /g')'"
 
@@ -69,7 +69,7 @@ _trapCleanup_() {
         printf "%s\n" "Fatal error trapped. Exiting..."
     fi
 
-    if declare -f _safeExit_ &>/dev/null; then
+    if declare -f _safeExit_ &> /dev/null; then
         _safeExit_ 1
     else
         exit 1
@@ -270,7 +270,7 @@ _parseOptions_() {
                 break
                 ;;
             *)
-                if declare -f _safeExit_ &>/dev/null; then
+                if declare -f _safeExit_ &> /dev/null; then
                     fatal "invalid option: $1"
                 else
                     printf "%s\n" "ERROR: Invalid option: $1"
@@ -289,7 +289,7 @@ _parseOptions_() {
 }
 
 _usage_() {
-    cat <<USAGE_TEXT
+    cat << USAGE_TEXT
 
   ${bold}$(basename "$0") [OPTION]... [FILE]...${reset}
 

@@ -43,7 +43,7 @@ _cleanString_() {
             p | P)
                 shift
                 declare -a _pairs=()
-                IFS=',' read -r -a _pairs <<<"$1"
+                IFS=',' read -r -a _pairs <<< "$1"
                 _replace=true
                 ;;
             *)
@@ -62,7 +62,7 @@ _cleanString_() {
     local _userChars="${2:-}"
 
     declare -a _arrayToClean=()
-    IFS=',' read -r -a _arrayToClean <<<"${_userChars}"
+    IFS=',' read -r -a _arrayToClean <<< "${_userChars}"
 
     # trim trailing/leading white space and duplicate spaces/tabs
     _string="$(printf "%s" "${_string}" | awk '{$1=$1};1')"
@@ -73,11 +73,11 @@ _cleanString_() {
         _string="$(printf "%s" "${_string}" | sed "s/${i}//g")"
     done
 
-    ("${_lc}") \
-        && _string="$(printf "%s" "${_string}" | tr '[:upper:]' '[:lower:]')"
+    ("${_lc}") &&
+        _string="$(printf "%s" "${_string}" | tr '[:upper:]' '[:lower:]')"
 
-    ("${_uc}") \
-        && _string="$(printf "%s" "${_string}" | tr '[:lower:]' '[:upper:]')"
+    ("${_uc}") &&
+        _string="$(printf "%s" "${_string}" | tr '[:lower:]' '[:upper:]')"
 
     if "${_alphanumeric}" && "${_us}"; then
         _string="$(printf "%s" "${_string}" | tr -c '[:alnum:]_ -' ' ')"
@@ -261,7 +261,7 @@ _splitString_() (
     local _input="${1}"
     local _delimiter="${2}"
 
-    IFS="${_delimiter}" read -r -a _arr <<<"${_input}"
+    IFS="${_delimiter}" read -r -a _arr <<< "${_input}"
 
     printf '%s\n' "${_arr[@]}"
 )

@@ -48,19 +48,19 @@ _backupFile_() {
     local _newFilename
 
     # Error handling
-    declare -f _execute_ &>/dev/null || fatal "_backupFile_ needs function _execute_"
-    declare -f _createUniqueFilename_ &>/dev/null || fatal "_backupFile_ needs function _createUniqueFilename_"
+    declare -f _execute_ &> /dev/null || fatal "_backupFile_ needs function _execute_"
+    declare -f _createUniqueFilename_ &> /dev/null || fatal "_backupFile_ needs function _createUniqueFilename_"
 
-    [ ! -e "${_fileToBackup}" ] \
-        && {
+    [ ! -e "${_fileToBackup}" ] &&
+        {
             debug "Source '${_fileToBackup}' not found"
             return 1
         }
 
     if [[ ${_useDirectory} == true ]]; then
 
-        [ ! -d "${_backupDir}" ] \
-            && _execute_ "mkdir -p \"${_backupDir}\"" "Creating backup directory"
+        [ ! -d "${_backupDir}" ] &&
+            _execute_ "mkdir -p \"${_backupDir}\"" "Creating backup directory"
 
         _newFilename="$(_createUniqueFilename_ "${_backupDir}/${_fileToBackup#.}")"
         if [[ ${_moveFile} == true ]]; then
@@ -139,7 +139,7 @@ _createUniqueFilename_() {
     shopt -s nocasematch                  # Use case-insensitive regex
 
     # Detect some common multi-extensions
-    case $(tr '[:upper:]' '[:lower:]' <<<"${_originalFile}") in
+    case $(tr '[:upper:]' '[:lower:]' <<< "${_originalFile}") in
         *.tar.gz | *.tar.bz2) _levels=2 ;;
         *) _levels=1 ;;
     esac
@@ -207,9 +207,9 @@ _decryptFile_() {
     local _defaultName="${_fileToDecrypt%.enc}"
     local _decryptedFile="${2:-${_defaultName}.decrypt}"
 
-    declare -f _execute_ &>/dev/null || fatal "${FUNCNAME[0]} needs function _execute_"
+    declare -f _execute_ &> /dev/null || fatal "${FUNCNAME[0]} needs function _execute_"
 
-    if ! command -v openssl &>/dev/null; then
+    if ! command -v openssl &> /dev/null; then
         fatal "openssl not found"
     fi
 
@@ -246,9 +246,9 @@ _encryptFile_() {
 
     [ ! -f "${_fileToEncrypt}" ] && return 1
 
-    declare -f _execute_ &>/dev/null || fatal "${FUNCNAME[0]} needs function _execute_"
+    declare -f _execute_ &> /dev/null || fatal "${FUNCNAME[0]} needs function _execute_"
 
-    if ! command -v openssl &>/dev/null; then
+    if ! command -v openssl &> /dev/null; then
         fatal "openssl not found"
     fi
 
@@ -375,7 +375,7 @@ _fileExtension_() {
 
     # Detect some common multi-extensions
     if [[ -z ${_levels:-} ]]; then
-        case $(tr '[:upper:]' '[:lower:]' <<<"${_file}") in
+        case $(tr '[:upper:]' '[:lower:]' <<< "${_file}") in
             *.tar.gz | *.tar.bz2 | *.log.[0-9]) _levels=2 ;;
             *) _levels=1 ;;
         esac
@@ -457,7 +457,7 @@ _json2yaml_() {
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    python -c 'import sys, yaml, json; yaml.safe_dump(json.load(sys.stdin), sys.stdout, default_flow_style=False)' <"${1}"
+    python -c 'import sys, yaml, json; yaml.safe_dump(json.load(sys.stdin), sys.stdout, default_flow_style=False)' < "${1}"
 }
 
 _listFiles_() {
@@ -545,10 +545,10 @@ _makeSymlink_() {
     done
     shift $((OPTIND - 1))
 
-    declare -f _execute_ &>/dev/null || fatal "${FUNCNAME[0]} needs function _execute_"
-    declare -f _backupFile_ &>/dev/null || fatal "${FUNCNAME[0]} needs function _backupFile_"
+    declare -f _execute_ &> /dev/null || fatal "${FUNCNAME[0]} needs function _execute_"
+    declare -f _backupFile_ &> /dev/null || fatal "${FUNCNAME[0]} needs function _backupFile_"
 
-    if ! command -v realpath >/dev/null 2>&1; then
+    if ! command -v realpath > /dev/null 2>&1; then
         error "We must have 'realpath' installed and available in \$PATH to run."
         if [[ ${OSTYPE} == "darwin"* ]]; then
             notice "Install coreutils using homebrew and rerun this script."
@@ -567,20 +567,20 @@ _makeSymlink_() {
     _destinationFile="${_destinationFile/\~/${HOME}}"
     _sourceFile="${_sourceFile/\~/${HOME}}"
 
-    [ ! -e "${_sourceFile}" ] \
-        && {
+    [ ! -e "${_sourceFile}" ] &&
+        {
             error "'${_sourceFile}' not found"
             return 1
         }
-    [ -z "${_destinationFile}" ] \
-        && {
+    [ -z "${_destinationFile}" ] &&
+        {
             error "'${_destinationFile}' not specified"
             return 1
         }
 
     # Create destination directory if needed
-    [ ! -d "${_destinationFile%/*}" ] \
-        && _execute_ "mkdir -p \"${_destinationFile%/*}\""
+    [ ! -d "${_destinationFile%/*}" ] &&
+        _execute_ "mkdir -p \"${_destinationFile%/*}\""
 
     if [ ! -e "${_destinationFile}" ]; then
         _execute_ "ln -fs \"${_sourceFile}\" \"${_destinationFile}\"" "symlink ${_sourceFile} → ${_destinationFile}"
@@ -658,8 +658,8 @@ _parseYAML_() {
     _fs="$(printf @ | tr @ '\034')"
 
     sed -ne "s|^\(${_s}\)\(${_w}\)${_s}:${_s}\"\(.*\)\"${_s}\$|\1${_fs}\2${_fs}\3|p" \
-        -e "s|^\(${_s}\)\(${_w}\)${_s}[:-]${_s}\(.*\)${_s}\$|\1${_fs}\2${_fs}\3|p" "${_yamlFile}" \
-        | awk -F"${_fs}" '{
+        -e "s|^\(${_s}\)\(${_w}\)${_s}[:-]${_s}\(.*\)${_s}\$|\1${_fs}\2${_fs}\3|p" "${_yamlFile}" |
+        awk -F"${_fs}" '{
     indent = length($1)/2;
     if (length($2) == 0) { conj[indent]="+";} else {conj[indent]="";}
     vname[indent] = $2;
@@ -764,13 +764,13 @@ _randomLineFromFile_() {
     local _fileToRead="$1"
     local _rnd
 
-    [ ! -f "${_fileToRead}" ] \
-        && {
+    [ ! -f "${_fileToRead}" ] &&
+        {
             error "'${_fileToRead}' not found"
             return 1
         }
 
-    _rnd=$((1 + RANDOM % $(wc -l <"${_fileToRead}")))
+    _rnd=$((1 + RANDOM % $(wc -l < "${_fileToRead}")))
     sed -n "${_rnd}p" "${_fileToRead}"
 }
 
@@ -789,15 +789,15 @@ _readFile_() {
     local _result
     local _fileToRead="$1"
 
-    [ ! -f "${_fileToRead}" ] \
-        && {
+    [ ! -f "${_fileToRead}" ] &&
+        {
             error "'${_fileToRead}' not found"
             return 1
         }
 
     while read -r _result; do
         printf "%s\n" "${_result}"
-    done <"${_fileToRead}"
+    done < "${_fileToRead}"
 }
 
 _sourceFile_() {
@@ -832,5 +832,5 @@ _yaml2json_() {
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' <"${1:?_yaml2json_ needs a file}"
+    python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' < "${1:?_yaml2json_ needs a file}"
 }

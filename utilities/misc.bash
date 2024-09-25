@@ -74,7 +74,7 @@ _detectLinuxDistro_() {
         # shellcheck disable=SC1091,SC2154
         . "/etc/os-release"
         _distro="${NAME}"
-    elif type lsb_release >/dev/null 2>&1; then
+    elif type lsb_release > /dev/null 2>&1; then
         # linuxbase.org
         _distro=$(lsb_release -si)
     elif [[ -f /etc/lsb-release ]]; then
@@ -111,7 +111,7 @@ _detectMacOSVersion_() {
     # CREDIT:
     #         https://github.com/labbots/bash-utility
 
-    declare -f _detectOS_ &>/dev/null || fatal "${FUNCNAME[0]} needs function _detectOS_"
+    declare -f _detectOS_ &> /dev/null || fatal "${FUNCNAME[0]} needs function _detectOS_"
 
     if [[ "$(_detectOS_)" == "mac" ]]; then
         local _mac_version
@@ -141,7 +141,7 @@ _detectLinuxDistro_() {
         # shellcheck disable=SC1091
         . "/etc/os-release"
         _distro="${NAME}"
-    elif type lsb_release >/dev/null 2>&1; then
+    elif type lsb_release > /dev/null 2>&1; then
         # linuxbase.org
         _distro=$(lsb_release -si)
     elif [[ -f /etc/lsb-release ]]; then
@@ -260,7 +260,7 @@ _execute_() {
             "${_passFailures}" && return 0 || return 1
         fi
     else
-        if eval "${_command}" >/dev/null 2>&1; then
+        if eval "${_command}" > /dev/null 2>&1; then
             if "${_quietMode}"; then
                 VERBOSE=${_saveVerbose}
             elif "${_echoResult}"; then

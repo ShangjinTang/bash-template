@@ -1,7 +1,6 @@
 # Functions required to allow the script template and alert functions to be used
 # shellcheck disable=SC2154
 
-# shellcheck disable=SC2120
 _acquireScriptLock_() {
     # DESC:
     #         Acquire script lock to prevent running the same script a second time before the
@@ -21,11 +20,11 @@ _acquireScriptLock_() {
         _lockDir="${TMPDIR:-/tmp/}$(basename "$0").${UID}.lock"
     fi
 
-    if command mkdir "${_lockDir}" 2>/dev/null; then
+    if command mkdir "${_lockDir}" 2> /dev/null; then
         readonly SCRIPT_LOCK="${_lockDir}"
         debug "Acquired script lock: ${yellow}${SCRIPT_LOCK}${purple}"
     else
-        if declare -f "_safeExit_" &>/dev/null; then
+        if declare -f "_safeExit_" &> /dev/null; then
             error "Unable to acquire script lock: ${yellow}${_lockDir}${red}"
             fatal "If you trust the script isn't running, delete the lock dir"
         else

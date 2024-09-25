@@ -33,7 +33,7 @@ _guiInput_() {
         local _guiPrompt="${1:-Password:}"
         local _guiInput
         _guiInput=$(
-            osascript &>/dev/null <<GUI_INPUT_MESSAGE
+            osascript &> /dev/null << GUI_INPUT_MESSAGE
       tell application "System Events"
           activate
           text returned of (display dialog "${_guiPrompt}" default answer "" with hidden answer)
@@ -62,7 +62,7 @@ _useGNUutils_() {
     # NOTES:
     #					GNU utilities can be added to MacOS using Homebrew
 
-    ! declare -f "_setPATH_" &>/dev/null && fatal "${FUNCNAME[0]} needs function _setPATH_"
+    ! declare -f "_setPATH_" &> /dev/null && fatal "${FUNCNAME[0]} needs function _setPATH_"
 
     if _setPATH_ \
         "/usr/local/opt/gnu-tar/libexec/gnubin" \
@@ -94,7 +94,7 @@ _homebrewPath_() {
     # USAGE:
     #					# if ! _homebrewPath_; then exit 1; fi
 
-    ! declare -f "_setPATH_" &>/dev/null && fatal "${FUNCNAME[0]} needs function _setPATH_"
+    ! declare -f "_setPATH_" &> /dev/null && fatal "${FUNCNAME[0]} needs function _setPATH_"
 
     if _uname=$(command -v uname); then
         if "${_uname}" | tr '[:upper:]' '[:lower:]' | grep -q 'darwin'; then

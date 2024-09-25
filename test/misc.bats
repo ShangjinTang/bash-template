@@ -1,5 +1,4 @@
 #!/usr/bin/env bats
-#shellcheck disable
 
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-file/load'
@@ -197,13 +196,13 @@ teardown() {
 }
 
 @test "_seekConfirmation_: yes" {
-    run _seekConfirmation_ 'test' <<<"y"
+    run _seekConfirmation_ 'test' <<< "y"
     assert_success
     assert_output --partial "[  input] test"
 }
 
 @test "_seekConfirmation_: no" {
-    run _seekConfirmation_ 'test' <<<"n"
+    run _seekConfirmation_ 'test' <<< "n"
     assert_failure
     assert_output --partial "[  input] test"
 }
@@ -217,7 +216,7 @@ teardown() {
 
 @test "_seekConfirmation_: Quiet" {
     QUIET=true
-    run _seekConfirmation_ 'test' <<<"y"
+    run _seekConfirmation_ 'test' <<< "y"
     assert_success
     refute_output --partial "test"
 }

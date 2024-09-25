@@ -11,13 +11,13 @@ _setColors_() {
     # USAGE:
     #         printf "%s\n" "${blue}Some text${reset}"
 
-    if tput setaf 1 >/dev/null 2>&1; then
+    if tput setaf 1 > /dev/null 2>&1; then
         bold=$(tput bold)
         underline=$(tput smul)
         reverse=$(tput rev)
         reset=$(tput sgr0)
 
-        if [[ $(tput colors) -ge 256 ]] >/dev/null 2>&1; then
+        if [[ $(tput colors) -ge 256 ]] > /dev/null 2>&1; then
             white=$(tput setaf 231)
             blue=$(tput setaf 38)
             yellow=$(tput setaf 11)
@@ -135,7 +135,7 @@ _alert_() {
         local _cleanmessage
         _cleanmessage="$(printf "%s" "${_message}" | sed -E 's/(\x1b)?\[(([0-9]{1,2})(;[0-9]{1,3}){0,2})?[mGK]//g')"
         # Print message to log file
-        printf "%s [%7s] %s %s\n" "$(date +"%b %d %R:%S")" "${_alertType}" "[$(/bin/hostname)]" "${_cleanmessage}" >>"${LOGFILE}"
+        printf "%s [%7s] %s %s\n" "$(date +"%b %d %R:%S")" "${_alertType}" "[$(/bin/hostname)]" "${_cleanmessage}" >> "${LOGFILE}"
     }
 
     # Write specified log level data to logfile
@@ -273,7 +273,7 @@ _clearLine_() (
     # USAGE:
     #					_clearLine_ "2"
 
-    ! declare -f _isTerminal_ &>/dev/null && fatal "${FUNCNAME[0]} needs function _isTerminal_"
+    ! declare -f _isTerminal_ &> /dev/null && fatal "${FUNCNAME[0]} needs function _isTerminal_"
 
     local _num="${1:-1}"
     local i
@@ -363,5 +363,5 @@ _columns_() {
             _key=" "
         fi
         printf "%-${_leftIndent}s${_style}%-${_leftColumnWidth}b${reset} %b\n" "" "${_key}${reset}" "${_line}"
-    done <<<"$(fold -w${_rightWrapLength} -s <<<"${_value}")"
+    done <<< "$(fold -w${_rightWrapLength} -s <<< "${_value}")"
 }

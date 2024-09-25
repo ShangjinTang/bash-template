@@ -42,13 +42,13 @@ _setColors_() {
     # USAGE:
     #         printf "%s\n" "${blue}Some text${reset}"
 
-    if tput setaf 1 >/dev/null 2>&1; then
+    if tput setaf 1 > /dev/null 2>&1; then
         bold=$(tput bold)
         underline=$(tput smul)
         reverse=$(tput rev)
         reset=$(tput sgr0)
 
-        if [[ $(tput colors) -ge 256 ]] >/dev/null 2>&1; then
+        if [[ $(tput colors) -ge 256 ]] > /dev/null 2>&1; then
             white=$(tput setaf 231)
             blue=$(tput setaf 38)
             yellow=$(tput setaf 11)
@@ -166,7 +166,7 @@ _alert_() {
         local _cleanmessage
         _cleanmessage="$(printf "%s" "${_message}" | sed -E 's/(\x1b)?\[(([0-9]{1,2})(;[0-9]{1,3}){0,2})?[mGK]//g')"
         # Print message to log file
-        printf "%s [%7s] %s %s\n" "$(date +"%b %d %R:%S")" "${_alertType}" "[$(/bin/hostname)]" "${_cleanmessage}" >>"${LOGFILE}"
+        printf "%s [%7s] %s %s\n" "$(date +"%b %d %R:%S")" "${_alertType}" "[$(/bin/hostname)]" "${_cleanmessage}" >> "${LOGFILE}"
     }
 
     # Write specified log level data to logfile
@@ -310,7 +310,7 @@ _trapCleanup_() {
     # Replace the cursor in-case 'tput civis' has been used
     tput cnorm
 
-    if declare -f "fatal" &>/dev/null && declare -f "_printFuncStack_" &>/dev/null; then
+    if declare -f "fatal" &> /dev/null && declare -f "_printFuncStack_" &> /dev/null; then
 
         _funcstack="'$(printf "%s" "${_funcstack}" | sed -E 's/ / < /g')'"
 
@@ -323,7 +323,7 @@ _trapCleanup_() {
         printf "%s\n" "Fatal error trapped. Exiting..."
     fi
 
-    if declare -f _safeExit_ &>/dev/null; then
+    if declare -f _safeExit_ &> /dev/null; then
         _safeExit_ 1
     else
         exit 1
@@ -373,11 +373,11 @@ _acquireScriptLock_() {
         _lockDir="${TMPDIR:-/tmp/}$(basename "$0").${UID}.lock"
     fi
 
-    if command mkdir "${_lockDir}" 2>/dev/null; then
+    if command mkdir "${_lockDir}" 2> /dev/null; then
         readonly SCRIPT_LOCK="${_lockDir}"
         debug "Acquired script lock: ${yellow}${SCRIPT_LOCK}${purple}"
     else
-        if declare -f "_safeExit_" &>/dev/null; then
+        if declare -f "_safeExit_" &> /dev/null; then
             error "Unable to acquire script lock: ${yellow}${_lockDir}${red}"
             fatal "If you trust the script isn't running, delete the lock dir"
         else
@@ -459,7 +459,7 @@ _useGNUutils_() {
     # NOTES:
     #					GNU utilities can be added to MacOS using Homebrew
 
-    ! declare -f "_setPATH_" &>/dev/null && fatal "${FUNCNAME[0]} needs function _setPATH_"
+    ! declare -f "_setPATH_" &> /dev/null && fatal "${FUNCNAME[0]} needs function _setPATH_"
 
     if _setPATH_ \
         "/usr/local/opt/gnu-tar/libexec/gnubin" \
@@ -491,7 +491,7 @@ _homebrewPath_() {
     # USAGE:
     #					# if ! _homebrewPath_; then exit 1; fi
 
-    ! declare -f "_setPATH_" &>/dev/null && fatal "${FUNCNAME[0]} needs function _setPATH_"
+    ! declare -f "_setPATH_" &> /dev/null && fatal "${FUNCNAME[0]} needs function _setPATH_"
 
     if _uname=$(command -v uname); then
         if "${_uname}" | tr '[:upper:]' '[:lower:]' | grep -q 'darwin'; then
@@ -582,7 +582,7 @@ _parseOptions_() {
                 break
                 ;;
             *)
-                if declare -f _safeExit_ &>/dev/null; then
+                if declare -f _safeExit_ &> /dev/null; then
                     fatal "invalid option: $1"
                 else
                     printf "%s\n" "ERROR: Invalid option: $1"
@@ -679,11 +679,11 @@ _columns_() {
             _key=" "
         fi
         printf "%-${_leftIndent}s${_style}%-${_leftColumnWidth}b${reset} %b\n" "" "${_key}${reset}" "${_line}"
-    done <<<"$(fold -w${_rightWrapLength} -s <<<"${_value}")"
+    done <<< "$(fold -w${_rightWrapLength} -s <<< "${_value}")"
 }
 
 _usage_() {
-    cat <<USAGE_TEXT
+    cat << USAGE_TEXT
 
   ${bold}$(basename "$0") [OPTION]... [FILE]...${reset}
 

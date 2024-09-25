@@ -130,7 +130,7 @@ _pushover_() {
         -F "device=${_device}" \
         -F "title=${_messageTitle}" \
         -F "message=${_message}" \
-        "${_pushoverURL}" >/dev/null 2>&1; then
+        "${_pushoverURL}" > /dev/null 2>&1; then
         return 0
     else
         return 1

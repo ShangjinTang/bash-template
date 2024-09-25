@@ -41,7 +41,7 @@ _countdown_() {
 
     for ((i = 1; i <= _n; i++)); do
         ((ii = t - i))
-        if declare -f "info" &>/dev/null 2>&1; then
+        if declare -f "info" &> /dev/null 2>&1; then
             info "${_message} ${ii}"
         else
             echo "${_message} ${ii}"
@@ -551,7 +551,7 @@ _toSeconds_() {
 
     if [[ $1 =~ [0-9]{1,2}(:|,|-|_|,| |[hHmMsS])[0-9]{1,2}(:|,|-|_|,| |[hHmMsS])[0-9]{1,2} ]]; then
         _saveIFS="${IFS}"
-        IFS=":,;-_, HhMmSs" read -r _h _m _s <<<"$1"
+        IFS=":,;-_, HhMmSs" read -r _h _m _s <<< "$1"
         IFS="${_saveIFS}"
     else
         _h="$1"
