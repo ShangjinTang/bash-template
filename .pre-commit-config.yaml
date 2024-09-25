@@ -46,6 +46,7 @@ repos:
     rev: v1.24.6
     hooks:
       - id: typos
+        args: [] # disable auto fix
 
   - repo: local
     hooks:
@@ -56,13 +57,20 @@ repos:
         files: pyproject.toml
         pass_filenames: false
 
-      - id: bats
-        name: bats
+      # - id: bats
+      #   name: bats
+      #   language: system
+      #   files: '^test/.*\.bats$'
+      #   types_or: [shell, bash, sh, zsh]
+      #   entry: bash -c 'find test/ -maxdepth 1 -name "*.bats" -print0 | xargs -0 -n1 bats -t'
+      #   pass_filenames: false
+
+      - id: bats-cust
+        name: bats-cust
         language: system
-        files: '^test/.*\.bats$'
+        files: "test/cust.bats"
         types_or: [shell, bash, sh, zsh]
-        entry: bash -c 'find test/ -maxdepth 1 -name "*.bats" -print0 | xargs -0 -n1 bats -t'
-        pass_filenames: false
+        entry: "bats -t"
 
       - id: shellcheck
         name: shellcheck

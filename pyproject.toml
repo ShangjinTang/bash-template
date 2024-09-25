@@ -35,8 +35,8 @@
         [[tool.poe.tasks.lint.sequence]]
             shell = "poetry check"
 
-        [[tool.poe.tasks.lint.sequence]]
-            shell = "typos"
+        # [[tool.poe.tasks.lint.sequence]]
+        #     shell = "typos"
 
         [[tool.poe.tasks.lint.sequence]]
             shell = "yamllint ."
@@ -45,4 +45,4 @@
             #     shell = "shellcheck bin-*/*"
 
         [[tool.poe.tasks.lint.sequence]]
-            shell = "pre-commit run --all-files"
+            shell = "fd . | xargs pre-commit run --files"
