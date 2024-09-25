@@ -1,0 +1,2 @@
+# bash-template
+Bash Template
