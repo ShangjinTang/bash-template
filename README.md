@@ -1,76 +1,97 @@
 # Bash Template
 
+**REUSABLE and TESTABLE templates and utilities for bash script**.
+
+- Test framework is driven by [BATS](https://github.com/bats-core/bats-core).
+- CI dependencies are installed using [Poetry](https://python-poetry.org/).
+- CI procedure trigger is driven by [pre-commit](https://pre-commit.com/).
+- Manual lint is driven by [Poe the Poet](https://poethepoet.natn.io/).
+
+## Installation
+
+### BATS command line tool
+
 ```bash
 git clone https://github.com/ShangjinTang/bash-template.git --depth=1 --recurse-submodules --shallow-submodules
 ```
 
-## Installation
+## Utility Develop
 
-Use package manager:
+Choose one installation command below to install `bats`.
 
-```bash
-# ArchLinux
-sudo pacman -Sy bats
-# Ubuntu 24.04
-sudo apt-get install bats
-```
+- Package Manager
+  - ArchLinux: `sudo pacman -Sy bats`
+  - Ubuntu 24.04: `sudo apt-get install bats`
+- NPM: `npm install -g bats`
 
-Use npm:
+## Test with bats
 
-```bash
-npm install -g bats
-```
+- Run all tests in bats file:
 
-## Run Tests
+  ```bash
+  fd "bats" test --exact-depth=1 | xargs bats
+  ```
 
-Run all tests in bats file:
+- Run all tests in a single bats file:
 
-```bash
-fd "bats" test --exact-depth=1 | xargs bats
-```
+  ```bash
+  bats test/strings.bats
+  ```
 
-Run all tests in a single bats file:
+- Run tests contains a pattern:
 
-```bash
-bats test/strings.bats
-```
+  ```bash
+  bats test/strings.bats -f 'trim'
+  ```
 
-Run tests contains a pattern:
+- Check all available tests:
 
-```bash
-bats test/strings.bats -f 'trim'
-```
+  ```bash
+  fd ".bats" test --exact-depth=1 | xargs grep "@test" | cut -d '"' -f 2
+  ```
 
-Check all available tests:
+## Script Develop based on Utilities
 
-```bash
-fd ".bats" test --exact-depth=1 | xargs grep "@test" | cut -d '"' -f 2
-```
+1. Install Python 3.12 and Poetry:
 
-# Shell Scripting Templates and Utilities
+   ```bash
+   python3 -m pip install pipx
+   pipx install poetry
+   ```
 
-A collection of BASH utility functions and script templates used to ease the creation of portable and hardened BASH scripts with sane defaults.
+2. Install dependencies and activate Poetry environment:
+
+   ```bash
+   poetry install --no-root
+   poetry shell
+   ```
+
+3. Install `pre-commit` hooks to automatic CI on git commit and git push:
+
+   ```bash
+   pre-commit install --install-hooks
+   ```
+
+4. Manual run lint with `poe`:
+
+   ```bash
+   poe lint
+   ```
 
 ## Usage
 
-There are **two Script Templates** located in the root level of this repository. The usage of these templates is described in detail below.
-
-BASH **Utility functions** are located within the `utilities/` folder.
-
-Complex `sed` find/replace operations are supported with the files located in `sedfiles/`. Read [the usage instructions](sedfiles/README.md).
-
-**Automated testing** is provided using [BATS](https://github.com/bats-core/bats-core). All tests are in the `tests/` repo. A git pre-commit hook provides automated testing is located in the `.hooks/` directory. Read about [how to install the hook](.hooks/README.md).
-
 ## Bash Script Templates Usage
 
-To create a new script, copy one of the script templates to a new file and make it executable `chmod 755 [newscript].sh`. Place your custom script logic within the `_mainScript_` function at the top of the script.
+To create a new script, copy one of the script templates to a new file and make it executable by `chmod 755 [new-script].sh`. Place your custom script logic within the `_mainScript_` function at the top of the script.
 
 ### Script Templates
 
-There are two templates located at the root level of this repository.
+There are **two Script Templates** located in the root level of this repository.
 
 - **`template.sh`** - A lean template which attempts to source all the utility functions from this repository. You will need to update the path to the utilities folder sent to `_sourceUtilities_` at the bottom of the script. This template will not function correctly if the utilities are not found.
 - **`template_standalone.sh`** - For portability, the standalone template does not assume that this repository is available. Copy and paste the individual utility functions under the `### Custom utility functions` line.
+
+BASH **Utility functions** are located within the `utilities/` folder.
 
 ### Code Organization
 
@@ -94,73 +115,11 @@ These default options and global variables are included in the templates and use
 
 You can add custom script options and flags to the `_parseOptions_` function.
 
-### Script Initialization
-
-The bottom of the script template file contains a block which initializes the script. Comment, uncomment, or change the settings here for your needs
-
-```bash
-trap '_trapCleanup_ ${LINENO} ${BASH_LINENO} "${BASH_COMMAND}" "${FUNCNAME[*]}" "${0}" "${BASH_SOURCE[0]}"' EXIT INT TERM SIGINT SIGQUIT SIGTERM ERR
-
-# Trap errors in subshells and functions
-set -o errtrace
-
-# Exit on error. Append '||true' if you expect an error
-set -o errexit
-
-# Use last non-zero exit code in a pipeline
-set -o pipefail
-
-# Confirm we have BASH greater than v4
-[ "${BASH_VERSINFO:-0}" -ge 4 ] || {
-    printf "%s\n" "ERROR: BASH_VERSINFO is '${BASH_VERSINFO:-0}'.  This script requires BASH v4 or greater."
-    exit 1
-}
-
-# Make `for f in *.txt` work when `*.txt` matches zero files
-shopt -s nullglob globstar
-
-# Set IFS to preferred implementation
-IFS=$' \n\t'
-
-# Run in debug mode
-# set -o xtrace
-
-# Source utility functions
-_sourceUtilities_
-
-# Initialize color constants
-_setColors_
-
-# Disallow expansion of unset variables
-set -o nounset
-
-# Force arguments when invoking the script
-# [[ $# -eq 0 ]] && _parseOptions_ "-h"
-
-# Parse arguments passed to script
-_parseOptions_ "$@"
-
-# Create a temp directory '$TMP_DIR'
-# _makeTempDir_ "$(basename "$0")"
-
-# Acquire script lock
-# _acquireScriptLock_
-
-# Source GNU utilities for use on MacOS
-# _useGNUUtils_
-
-# Run the main logic script
-_mainScript_
-
-# Exit cleanly
-_safeExit_
-```
-
-# Utility Functions
+## Utility Functions
 
 The files within `utilities/` contain BASH functions which can be used in your scripts. Each included function includes detailed usage information. Read the inline comments within the code for detailed usage instructions.
 
-## Including Utility Functions
+### Including Utility Functions
 
 Within the `utilities` folder are many BASH functions meant to ease development of more complicated scripts. These can be included in the template in two ways.
 
@@ -170,15 +129,15 @@ You can copy any complete function from the Utilities and place it into your scr
 
 #### 2. Source all the utility files by using template.sh
 
-`template.sh` contains a function to source all the utility files into the script. **IMPORTANT:** You will need to update the paths within the `_sourceUtilities_` function to ensure your script can find this repository.
+`template.sh` contains a function to source all the utility files into the script. **IMPORTANT:** You will need to update the paths within the `_trySourceUtilities_` function to ensure your script can find this repository.
 
-## alerts.bash
+### alerts.bash
 
 - **`_columns_`** Prints a two column output from a key/value pair
 - -**`_printFuncStack_`** Prints the function stack in use. Used for debugging, and error reporting
 - **`_alert_`** Performs alerting functions including writing to a log file and printing to screen
 - **`_centerOutput_`** Prints text in the center of the terminal window
-- **`_setColors_`** Sets color constants for alerting (**Note:** Colors default to a dark theme.)
+- **`_setColors_`** Sets color constants for alerting
 
 Basic alerting, logging, and setting color functions (included in `scriptTemplate.sh` by default). Print messages to stdout and to a user specified logfile using the following functions.
 
@@ -202,7 +161,7 @@ The following global variables must be set for the alert functions to work
 - **`$LOGLEVEL`** - One of: FATAL, ERROR, WARN, INFO, DEBUG, ALL, OFF (Default: `ERROR`)
 - **`$QUIET`** - If `true`, prints to log file but not stdout. (Default: `false`)
 
-## arrays.bash
+### arrays.bash
 
 Utility functions for working with arrays.
 
@@ -221,7 +180,7 @@ Utility functions for working with arrays.
 - **`_setdiff_`** Return items that exist in ARRAY1 that are do not exist in ARRAY2
 - **`_sortArray_`** Sorts an array from lowest to highest
 
-## checks.bash
+### checks.bash
 
 Functions for validating common use-cases
 
@@ -244,7 +203,7 @@ Functions for validating common use-cases
 - **`_varIsFalse_`** Checks if a given variable is false
 - **`_varIsTrue_`** Checks if a given variable is true
 
-## dates.bash
+### dates.bash
 
 Functions for working with dates and time.
 
@@ -259,7 +218,7 @@ Functions for working with dates and time.
 - **`_readableUnixTimestamp_`** Format unix timestamp to human readable format
 - **`_toSeconds_`** Converts HH:MM:SS to seconds
 
-## debug.bash
+### debug.bash
 
 Functions to aid in debugging BASH scripts
 
@@ -267,7 +226,7 @@ Functions to aid in debugging BASH scripts
 - **`_printAnsi_`** Helps debug ansi escape sequence in text by displaying the escape codes
 - **`_printArray_`** Prints the content of array as key value pairs for easier debugging
 
-## files.bash
+### files.bash
 
 Functions for working with files.
 
@@ -291,7 +250,7 @@ Functions for working with files.
 - **`_createUniqueFilename_`** Ensure a file to be created has a unique filename to avoid overwriting other files
 - **`_yaml2json_`** Convert a YAML file to JSON with python
 
-## macOS.bash
+### macOS.bash
 
 Functions useful when writing scripts to be run on macOS
 
@@ -300,7 +259,7 @@ Functions useful when writing scripts to be run on macOS
 - **`_homebrewPath_`** Adds Homebrew bin directory to PATH
 - **`_useGNUUtils_`** Add GNU utilities to PATH to allow consistent use of sed/grep/tar/etc. on MacOS
 
-## misc.bash
+### misc.bash
 
 Miscellaneous functions
 
@@ -310,7 +269,7 @@ Miscellaneous functions
 - **`_detectOS_`** Detect the the host computer's operating system
 - **`_endspin_`** Clears output from the _spinner_
 - **`_execute_`** Executes commands with safety and logging options. Respects `DRYRUN` and `VERBOSE` flags.
-- **`_findBaseDir_`** Locates the real directory of the script being run. Similar to GNU readlink -n
+- **`_findBaseDir_`** Locates the real directory of the script being run. Similar to GNU `readlink -n`.
 - **`_generateUUID_`** Generates a unique UUID
 - **`_progressBar_`** Prints a progress bar within a for/while loop
 - **`_runAsRoot_`** Run the requested command as root (via sudo if requested)
@@ -318,7 +277,7 @@ Miscellaneous functions
 - **`_spinner_`** Creates a spinner within a for/while loop.
 - **`_trapCleanup_`** Cleans up after a trapped error.
 
-## services.bash
+### services.bash
 
 Functions to work with external services
 
@@ -326,14 +285,12 @@ Functions to work with external services
 - **`_httpStatus_`** Report the HTTP status of a specified URL
 - **`_pushover_`** Sends a notification via Pushover (Requires API keys)
 
-## strings.bash
+### strings.bash
 
 Functions for string manipulation
 
 - **`_cleanString_`** Cleans a string of text
-- **`_decodeHTML_`** Decode HTML characters with sed. (Requires sed file)
 - **`_decodeURL_`** Decode a URL encoded string
-- **`_encodeHTML_`** Encode HTML characters with sed (Requires sed file)
 - **`_encodeURL_`** URL encode a string
 - **`_escapeString_`** Escapes a string by adding `\` before special chars
 - **`_lower_`** Convert a string to lowercase
@@ -344,11 +301,10 @@ Functions for string manipulation
 - **`_stringContains_`** Tests whether a string matches a substring
 - **`_stringRegex_`** Tests whether a string matches a regex pattern
 - **`_stripANSI_`** Strips ANSI escape sequences from text
-- **`_stripStopwords_`** Removes common stopwords from a string using a list of sed replacements located in an external file.
 - **`_trim_`** Removes all leading/trailing whitespace
 - **`_upper_`** Convert a string to uppercase
 
-## template_utils.bash
+### template_utils.bash
 
 Functions required to allow the script template and alert functions to be used
 
@@ -356,42 +312,13 @@ Functions required to allow the script template and alert functions to be used
 - **`_safeExit_`** Cleans up temporary files before exiting a script
 - **`_setPATH_`** Add directories to $PATH so script can find executables
 
-# Coding conventions
+## Coding conventions
 
-- Function names use camel case surrounded by underscores: `_nameOfFunction_`
-- Local variable names use camel case with a starting underscore: `_localVariable`
-- Global variables are in ALL_CAPS with underscores separating words
-- Exceptions to the variable an function naming rules are made for alerting functions and colors to ease my speed of programming. (Breaking years of habits is hard...) I.e. `notice "Some log item: ${blue}blue text${reset}` Where `notice` is a function and `$blue` and `$reset` are global variables but are lowercase.
-- Variables are always surrounded by quotes and brackets `"${1}"` (Overly verbose true, but a safe practice)
-- Formatting is provided by [shfmt](https://github.com/mvdan/sh) using 4 spaces for indentation
-- All scripts and functions are fully [Shellcheck](https://github.com/koalaman/shellcheck) compliant
-- Where possible, I follow [defensive BASH programming](https://kfirlavi.herokuapp.com/blog/2012/11/14/defensive-bash-programming/) principles.
-
-## A Note on Code Reuse and Prior Art
-
-I compiled these scripting utilities over many years without having an intention to make them public. As a novice programmer, I have Googled, GitHubbed, and StackExchanged a path to solve my own scripting needs. I often lift a function whole-cloth from a GitHub repo don't keep track of its original location. I have done my best within these files to recreate my footsteps and give credit to the original creators of the code when possible. Unfortunately, I fear that I missed as many as I found. My goal in making this repository public is not to take credit for the code written by others. If you recognize something that I didn't credit, please let me know.
-
-## Contributing
-
-### Setup
-
-1. Install Python 3.11 and [Poetry](https://python-poetry.org)
-2. Clone this repository. `git clone https://github.com/natelandau/shell-scripting-templates.git`
-3. Install the Poetry environment with `poetry install`.
-4. Activate your Poetry environment with `poetry shell`.
-5. Install the pre-commit hooks with `pre-commit install --install-hooks`.
-
-### Developing
-
-- Activate your Poetry environment with `poetry shell`.
-- This project follows the [Conventional Commits](https://www.conventionalcommits.org/) standard to automate [Semantic Versioning](https://semver.org/) and [Keep A Changelog](https://keepachangelog.com/) with [Commitizen](https://github.com/commitizen-tools/commitizen).
-  - When you're ready to commit changes run `cz c`
-- Run `poe` from within the development environment to print a list of [Poe the Poet](https://github.com/nat-n/poethepoet) tasks available to run on this project. Common commands:
-  - `poe lint` runs all linters and tests
-- Run `poetry add {package}` from within the development environment to install a runtime dependency and add it to `pyproject.toml` and `poetry.lock`.
-- Run `poetry remove {package}` from within the development environment to uninstall a runtime dependency and remove it from `pyproject.toml` and `poetry.lock`.
-- Run `poetry update` from within the development environment to upgrade all dependencies to the latest versions allowed by `pyproject.toml`.
-
-## License
-
-MIT
+- Function names use camel case surrounded by underscores: `_nameOfFunction_`.
+- Local variable names use camel case with a starting underscore: `_localVariable`.
+- Global variables are in ALL_CAPS with underscores separating words.
+- Exceptions to the variable an function naming rules are made for alerting functions and colors to ease my speed of programming. (Breaking years of habits is hard...) I.e. `notice "Some log item: ${blue}blue text${reset}` where `notice` is a function and `$blue` and `$reset` are global variables but are lowercase.
+- Variables are always surrounded by quotes and brackets `"${1}"` (Overly verbose true, but a safe practice).
+- Formatting is provided by [shfmt](https://github.com/mvdan/sh) using 4 spaces for indentation.
+- All scripts and functions are fully [Shellcheck](https://github.com/koalaman/shellcheck) compliant.
+- Where possible, follow [defensive BASH programming](https://kfirlavi.herokuapp.com/blog/2012/11/14/defensive-bash-programming/) principles.

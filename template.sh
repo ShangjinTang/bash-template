@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# shellcheck source-path=SCRIPTDIR/../shell-scripting-templates/utilities
-# shellcheck source-path=SCRIPTDIR/../../shell-scripting-templates/utilities
+# shellcheck source-path=SCRIPTDIR/utilities
+# shellcheck source-path=SCRIPTDIR/../utilities
 
 _mainScript_() {
     # Replace everything in _mainScript_() with your script's code
@@ -107,7 +107,7 @@ _findBaseDir_() {
 
 _sourceUtilities_() {
     # DESC:
-    #         Sources utility functions.  Absolute paths are required for shellcheck to correctly
+    #         Sources utility functions.  Absolute path is required for shellcheck to correctly
     #         parse the sourced files
     # ARGS:
     #					$1 (Required):  Absolute path to the directory containing the utilities
@@ -115,87 +115,58 @@ _sourceUtilities_() {
     #					 0:  Success
     #					 1:  Failure
     # USAGE:
-    #					_sourceUtilities_ "$(_findBaseDir_)/../../shell-scripting-templates/utilities"
+    #					_sourceUtilities_ "$(_findBaseDir_)/utilities"
 
     local _utilsPath
     _utilsPath="${1}"
 
-    if [ -f "${_utilsPath}/alerts.bash" ]; then
-        source "${_utilsPath}/alerts.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/alerts.bash not found"
-        exit 1
-    fi
+    local files=(
+        "alerts.bash"
+        "arrays.bash"
+        "checks.bash"
+        "dates.bash"
+        "debug.bash"
+        "files.bash"
+        "macOS.bash"
+        "misc.bash"
+        "services.bash"
+        "strings.bash"
+        "template_utils.bash"
+        "cust.bash"
+    )
 
-    if [ -f "${_utilsPath}/arrays.bash" ]; then
-        source "${_utilsPath}/arrays.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/arrays.bash not found"
-        exit 1
-    fi
+    for file in "${files[@]}"; do
+        if [ -f "${_utilsPath}/${file}" ]; then
+            source "${_utilsPath}/${file}"
+        else
+            printf "ERROR: %s/%s not found\n" "${_utilsPath}" "${file}"
+            exit 1
+        fi
+    done
+}
 
-    if [ -f "${_utilsPath}/checks.bash" ]; then
-        source "${_utilsPath}/checks.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/checks.bash not found"
-        exit 1
-    fi
+_trySourceUtilities_() {
+    # DESC:
+    #         Sources utility functions.  Absolute paths are required for shellcheck to correctly
+    #         parse the sourced files.  Try source paths one by one, until any path is sourced successfully.
+    # ARGS:
+    #					$@ (Required):  Absolute paths to the directory containing the utilities.
+    #									Paths on the left have higher priority.
+    # OUTS:
+    #					 0:  Success
+    #					 1:  Failure
+    # USAGE:
+    #					_sourceUtilities_ path1 [ path2 path3 ... ]
 
-    if [ -f "${_utilsPath}/dates.bash" ]; then
-        source "${_utilsPath}/dates.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/dates.bash not found"
-        exit 1
-    fi
+    for path in "$@"; do
+        if [ -d "$path" ]; then
+            _sourceUtilities_ "$path"
+            return $?
+        fi
+    done
 
-    if [ -f "${_utilsPath}/debug.bash" ]; then
-        source "${_utilsPath}/debug.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/debug.bash not found"
-        exit 1
-    fi
-
-    if [ -f "${_utilsPath}/files.bash" ]; then
-        source "${_utilsPath}/files.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/files.bash not found"
-        exit 1
-    fi
-
-    if [ -f "${_utilsPath}/macOS.bash" ]; then
-        source "${_utilsPath}/macOS.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/macOS.bash not found"
-        exit 1
-    fi
-
-    if [ -f "${_utilsPath}/misc.bash" ]; then
-        source "${_utilsPath}/misc.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/misc.bash not found"
-        exit 1
-    fi
-
-    if [ -f "${_utilsPath}/services.bash" ]; then
-        source "${_utilsPath}/services.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/services.bash not found"
-        exit 1
-    fi
-
-    if [ -f "${_utilsPath}/strings.bash" ]; then
-        source "${_utilsPath}/strings.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/strings.bash not found"
-        exit 1
-    fi
-
-    if [ -f "${_utilsPath}/template_utils.bash" ]; then
-        source "${_utilsPath}/template_utils.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/template_utils.bash not found"
-        exit 1
-    fi
+    echo "Error: No valid utilities directory found in the provided paths"
+    return 1
 }
 
 _parseOptions_() {
@@ -306,7 +277,7 @@ $(_columns_ -b -- "--force" "Skip all user interaction.  Implied 'Yes' to all ac
 
   ${bold}${underline}Example Usage:${reset}
 
-    ${gray}# Run the script and specify log level and log file.${reset}
+    ${color_fg}# Run the script and specify log level and log file.${reset}
     $(basename "$0") -vn --logfile "/path/to/file.log" --loglevel 'WARN'
 USAGE_TEXT
 }
@@ -341,7 +312,7 @@ IFS=$' \n\t'
 # set -o xtrace
 
 # Source utility functions
-_sourceUtilities_ "$(_findBaseDir_)/../shell-scripting-templates/utilities"
+_trySourceUtilities_ "$BASH_UTILITIES_DIR" "$(_findBaseDir_)/utilities" "$(_findBaseDir_)/../utilities" "$HOME/.bash_template/utilities"
 
 # Initialize color constants
 _setColors_

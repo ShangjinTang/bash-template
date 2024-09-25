@@ -10,44 +10,19 @@ _setColors_() {
     #         None
     # USAGE:
     #         printf "%s\n" "${blue}Some text${reset}"
-
-    if tput setaf 1 > /dev/null 2>&1; then
-        bold=$(tput bold)
-        underline=$(tput smul)
-        reverse=$(tput rev)
-        reset=$(tput sgr0)
-
-        if [[ $(tput colors) -ge 256 ]] > /dev/null 2>&1; then
-            white=$(tput setaf 231)
-            blue=$(tput setaf 38)
-            yellow=$(tput setaf 11)
-            green=$(tput setaf 82)
-            red=$(tput setaf 9)
-            purple=$(tput setaf 171)
-            gray=$(tput setaf 250)
-        else
-            white=$(tput setaf 7)
-            blue=$(tput setaf 38)
-            yellow=$(tput setaf 3)
-            green=$(tput setaf 2)
-            red=$(tput setaf 9)
-            purple=$(tput setaf 13)
-            gray=$(tput setaf 7)
-        fi
-    else
-        bold="\033[4;37m"
-        reset="\033[0m"
-        underline="\033[4;37m"
-        # shellcheck disable=SC2034
-        reverse=""
-        white="\033[0;37m"
-        blue="\033[0;34m"
-        yellow="\033[0;33m"
-        green="\033[1;32m"
-        red="\033[0;31m"
-        purple="\033[0;35m"
-        gray="\033[0;37m"
-    fi
+    reverse=""
+    reset=$(tput sgr0)
+    color_bg=$(tput setaf 0)
+    red=$(tput setaf 1)
+    green=$(tput setaf 2)
+    yellow=$(tput setaf 3)
+    blue=$(tput setaf 4)
+    purple=$(tput setaf 5)
+    cyan=$(tput setaf 6)
+    color_fg=$(tput setaf 7)
+    italic=$(tput sitm)
+    underline=$(tput smul)
+    bold=$(tput bold)
 }
 
 _alert_() {
@@ -76,25 +51,25 @@ _alert_() {
     [[ $# -lt 2 ]] && fatal 'Missing required argument to _alert_'
 
     if [[ -n ${_line} && ${_alertType} =~ ^(fatal|error) && ${FUNCNAME[2]} != "_trapCleanup_" ]]; then
-        _message="${_message} ${gray}(line: ${_line}) $(_printFuncStack_)"
+        _message="${_message} ${color_fg}(line: ${_line}) $(_printFuncStack_)"
     elif [[ -n ${_line} && ${FUNCNAME[2]} != "_trapCleanup_" ]]; then
-        _message="${_message} ${gray}(line: ${_line})"
+        _message="${_message} ${color_fg}(line: ${_line})"
     elif [[ -z ${_line} && ${_alertType} =~ ^(fatal|error) && ${FUNCNAME[2]} != "_trapCleanup_" ]]; then
-        _message="${_message} ${gray}$(_printFuncStack_)"
+        _message="${_message} ${color_fg}$(_printFuncStack_)"
     fi
 
     if [[ ${_alertType} =~ ^(error|fatal) ]]; then
         _color="${bold}${red}"
     elif [ "${_alertType}" == "info" ]; then
-        _color="${gray}"
+        _color="${color_fg}"
     elif [ "${_alertType}" == "warning" ]; then
-        _color="${red}"
+        _color="${bold}${yellow}"
     elif [ "${_alertType}" == "success" ]; then
         _color="${green}"
     elif [ "${_alertType}" == "debug" ]; then
         _color="${purple}"
     elif [ "${_alertType}" == "header" ]; then
-        _color="${bold}${white}${underline}"
+        _color="${bold}${color_fg}${underline}"
     elif [ "${_alertType}" == "notice" ]; then
         _color="${bold}"
     elif [ "${_alertType}" == "input" ]; then
@@ -117,7 +92,9 @@ _alert_() {
         if [[ ${_alertType} == header ]]; then
             printf "${_color}%s${reset}\n" "${_message}"
         else
-            printf "${_color}[%7s] %s${reset}\n" "${_alertType}" "${_message}"
+            local _cleanmessage
+            _cleanmessage="$(printf "%s" "${_message}" | sed -E 's/(\x1b)?\[(([0-9]{1,2})(;[0-9]{1,3}){0,2})?[mGK]//g' | sed 's/\\033//g')"
+            printf "${_color}[%7s] %s${reset}\n" "${_alertType}" "${_cleanmessage}"
         fi
     }
     _writeToScreen_
@@ -133,7 +110,7 @@ _alert_() {
 
         # Don't use colors in logs
         local _cleanmessage
-        _cleanmessage="$(printf "%s" "${_message}" | sed -E 's/(\x1b)?\[(([0-9]{1,2})(;[0-9]{1,3}){0,2})?[mGK]//g')"
+        _cleanmessage="$(printf "%s" "${_message}" | sed -E 's/(\x1b)?\[(([0-9]{1,2})(;[0-9]{1,3}){0,2})?[mGK]//g' | sed 's/\\033//g')"
         # Print message to log file
         printf "%s [%7s] %s %s\n" "$(date +"%b %d %R:%S")" "${_alertType}" "[$(/bin/hostname)]" "${_cleanmessage}" >> "${LOGFILE}"
     }
