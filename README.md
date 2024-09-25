@@ -6,6 +6,20 @@
 git clone https://github.com/ShangjinTang/bash-template.git --depth=1 --recurse-submodules --shallow-submodules
 ```
 
+## Table of Contents
+
+- [Bash Template](#bash-template)
+  - [Script Development Guide](#script-development-guide)
+    - [Script Templates](#script-templates)
+    - [Script Code Organization](#script-code-organization)
+    - [Script Default Options](#script-default-options)
+  - [Utility Functions](#utility-functions)
+  - [Utility Development Guide](#utility-development-guide)
+    - [Dependencies Installation](#dependencies-installation)
+  - [Read More](#read-more)
+    - [Bash Coding Conventions](#bash-coding-conventions)
+    - [How to manually test with BATS](#how-to-manually-test-with-bats)
+
 ## Script Development Guide
 
 To create a new script, copy one of the script templates to a new file and make it executable by `chmod 755 [new-script].sh`. Place your custom script logic within the `_mainScript_` function at the top of the script.
@@ -238,7 +252,7 @@ Functions required to allow the script template and alert functions to be used
 - **`_safeExit_`** Cleans up temporary files before exiting a script
 - **`_setPATH_`** Add directories to $PATH so script can find executables
 
-## Utilities Development Guide
+## Utility Development Guide
 
 - Test framework is driven by [BATS](https://github.com/bats-core/bats-core).
 - CI dependencies are installed using [Poetry](https://python-poetry.org/).
