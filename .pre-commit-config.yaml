@@ -25,7 +25,6 @@ repos:
       - id: check-json
       - id: check-merge-conflict
       - id: check-shebang-scripts-are-executable
-        exclude: '\.sed$'
       - id: check-symlinks
       - id: check-xml
       - id: check-yaml
@@ -67,7 +66,7 @@ repos:
       #   pass_filenames: false
 
       - id: bats-cust
-        name: bats-cust
+        name: bats cust
         language: system
         files: "test/cust.bats"
         types_or: [shell, bash, sh, zsh]

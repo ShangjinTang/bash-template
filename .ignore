@@ -1,0 +1,14 @@
+test/test_helper
+test/test_helper/
+test/alerts.bats
+test/arrays.bats
+test/checks.bats
+test/dates.bats
+test/debug.bats
+test/files.bats
+test/fixtures
+test/misc.bats
+test/strings.bats
+test/template.bats
+test/template_standalone.bats
+test/template_utils.bats
